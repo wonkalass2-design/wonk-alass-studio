@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wonk alass studio prompt v1.4 - AI Design Prompt & Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- Screen Authorization Gate (Overlay Before Access) -->
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/10">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Wonk Alass Studio</h2>
+                <p class="text-xs text-slate-400 mt-1">Verifikasi Lisensi Eksklusif Lynk.id</p>
+            </div>
+
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Email Pembelian</label>
+                    <input type="email" id="login-email" required placeholder="email@pembeli.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Kode Lisensi Unik</label>
+                    <input type="password" id="login-license" required placeholder="Contoh: WONK-XXXXXX" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                </div>
+
+                <button type="submit" id="login-btn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/20 transition hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                    <span>Aktivasi & Masuk</span>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
+                <p class="text-xs text-slate-500 mb-2">Belum memiliki lisensi akses?</p>
+                <a href="https://lynk.id" target="_blank" class="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-400 hover:underline">
+                    <span>Beli Lisensi Resmi di Lynk.id</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500 text-slate-950 p-2.5 rounded-xl font-extrabold flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-emerald-400 via-teal-200 to-white bg-clip-text text-transparent">wonk alass studio prompt</h1>
+                    <p class="text-xs text-emerald-400/80 font-medium">By. tangituru &bull; wonkalass2@gmail.com</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
+                <!-- Owner Special Button -->
+                <button id="admin-gen-btn" onclick="openAdminModal()" class="hidden bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow-md shadow-amber-500/10">
+                    🔑 <span class="hidden sm:inline">Buat Lisensi Pembeli</span>
+                </button>
+                <button onclick="toggleHistoryModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-semibold border border-slate-700 transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="hidden sm:inline">Histori</span>
+                </button>
+                <span class="bg-slate-800 text-emerald-400 px-3 py-1.5 rounded-xl font-bold border border-slate-700/60 shadow-inner flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="active-user-display">GUEST</span>
+                </span>
+                <span class="bg-amber-500/10 text-amber-300 px-3 py-1.5 rounded-xl font-bold border border-amber-500/20 flex items-center space-x-1.5">
+                    <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <span id="credit-count">999</span> <span class="hidden sm:inline">Kredit</span>
+                </span>
+                <button onclick="logout()" class="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-1.5 rounded-xl font-semibold border border-rose-500/20 transition-all">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full">
+        <div class="mb-8 border-b border-slate-800 pb-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="text-xs font-semibold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Studio Generator v1.4 Pro</span>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-white mt-2">Konfigurasi Desain AI</h2>
+                    <p class="text-sm text-slate-400 mt-1">Lengkapi data di bawah atau gunakan preset cepat untuk hasil prompt presisi tinggi.</p>
+                </div>
+                <button onclick="resetForm()" class="self-start md:self-auto text-xs text-slate-400 hover:text-white bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl transition flex items-center space-x-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Reset Form</span>
+                </button>
+            </div>
+
+            <!-- Preset Instan -->
+            <div class="mt-5 pt-4 border-t border-slate-800/60">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2.5">⚡ Quick Preset (Isi Otomatis):</span>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="applyPreset('fnb')" class="text-xs bg-slate-900 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition">🍔 Kuliner F&B</button>
+                    <button type="button" onclick="applyPreset('fashion')" class="text-xs bg-slate-900 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition">👕 Fashion & Apparel</button>
+                    <button type="button" onclick="applyPreset('gadget')" class="text-xs bg-slate-900 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition">📱 Gadget & Tech</button>
+                    <button type="button" onclick="applyPreset('event')" class="text-xs bg-slate-900 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition">🎉 Promo & Event</button>
+                </div>
+            </div>
+        </div>
+
+        <form id="banner-form" class="space-y-8" onsubmit="event.preventDefault(); generatePrompt();">
+            
+            <section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3 pb-4 mb-5 border-b border-slate-800">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">1. Data Informasi (Teks)</h3>
+                        <p class="text-xs text-slate-400">Tentukan hirarki teks utama yang akan ditampilkan pada banner</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Judul Utama</label>
+                        <input type="text" id="main-title" placeholder="E.g. Promo Spesial Kemerdekaan" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Sub Judul</label>
+                        <input type="text" id="sub-title" placeholder="E.g. Diskon hingga 50%" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Informasi Data / Deskripsi</label>
+                        <textarea id="description" rows="2" placeholder="Detail penawaran, syarat, dsb..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition custom-scrollbar"></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Slogan</label>
+                        <input type="text" id="slogan" placeholder="E.g. Cepat, Murah, Enak" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3 pb-4 mb-5 border-b border-slate-800">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">2. Panel Kontak & Alamat</h3>
+                        <p class="text-xs text-slate-400">Rincian saluran komunikasi dan alamat lokasi bisnis</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">WhatsApp</label>
+                        <input type="text" id="contact-wa" placeholder="0812..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Instagram</label>
+                        <input type="text" id="contact-ig" placeholder="@brand_anda" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Youtube</label>
+                        <input type="text" id="contact-yt" placeholder="Nama Channel" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Tiktok</label>
+                        <input type="text" id="contact-tiktok" placeholder="@username_tiktok" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Facebook</label>
+                        <input type="text" id="contact-fb" placeholder="Username FB" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Alamat</label>
+                        <input type="text" id="contact-address" placeholder="Jl. Anggrek No. 12" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Kontak Lain / Tambahan</label>
+                        <input type="text" id="contact-other" placeholder="Website atau info lain..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white text-base">3. Bahan Visual</h3>
+                            <p class="text-xs text-slate-400">Pilih berkas atau daftarkan objek visual</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-slate-400 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">PNG / JPG</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Upload Logo</label>
+                        <div onclick="triggerFileUpload('logo-input')" class="border-2 border-dashed border-slate-800 hover:border-emerald-500/50 bg-slate-950/50 rounded-2xl p-6 text-center transition cursor-pointer flex flex-col items-center justify-center group">
+                            <div class="w-10 h-10 rounded-full bg-slate-900 group-hover:bg-emerald-500/10 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center mb-2 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-300 group-hover:text-emerald-400 transition" id="logo-status">Add Logo</span>
+                            <span class="text-[10px] text-slate-500 mt-0.5">Klik untuk pilih file</span>
+                        </div>
+                        <input type="file" id="logo-input" multiple accept="image/*" class="hidden" onchange="updateFileStatus(this, 'logo-status', 'Logo')">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Foto Produk</label>
+                        <div onclick="triggerFileUpload('product-input')" class="border-2 border-dashed border-slate-800 hover:border-emerald-500/50 bg-slate-950/50 rounded-2xl p-6 text-center transition cursor-pointer flex flex-col items-center justify-center group">
+                            <div class="w-10 h-10 rounded-full bg-slate-900 group-hover:bg-emerald-500/10 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center mb-2 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-300 group-hover:text-emerald-400 transition" id="product-status">Add Foto Produk</span>
+                            <span class="text-[10px] text-slate-500 mt-0.5">Klik untuk pilih file</span>
+                        </div>
+                        <input type="file" id="product-input" multiple accept="image/*" class="hidden" onchange="updateFileStatus(this, 'product-status', 'Foto Produk')">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Daftar Nama Produk (Jika foto tidak ada/kurang)</label>
+                        <input type="text" id="product-list" placeholder="E.g. Sate Ayam, Gule Kambing, Es Teh..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Elemen Pendukung Lain</label>
+                        <input type="text" id="supporting-elements" placeholder="E.g. Ornamen batik, ikon diskon..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3 pb-4 mb-5 border-b border-slate-800">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">4. Spesifikasi & Referensi</h3>
+                        <p class="text-xs text-slate-400">Atur proporsi, warna dasar, dan gaya visual banner</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Orientasi</label>
+                        <select id="orientation" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                            <option value="Landscape" class="bg-slate-900 text-slate-100">Landscape (16:9)</option>
+                            <option value="Portrait" class="bg-slate-900 text-slate-100">Portrait (9:16)</option>
+                            <option value="Square (1:1)" class="bg-slate-900 text-slate-100">Square (1:1)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Ukuran Banner</label>
+                        <input type="text" id="banner-size" placeholder="E.g. 1200x630px atau media ikuti referensi" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Warna Dominan</label>
+                        <input type="text" id="dominant-color" placeholder="E.g. Merah, Putih, Emas" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Pilih Tema (Opsional)</label>
+                        <select id="theme" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                            <option value="" class="bg-slate-900 text-slate-400">-- Pilih Tema --</option>
+                            <option value="Modern Minimalis" class="bg-slate-900 text-slate-100">Modern Minimalis</option>
+                            <option value="Elegan & Mewah" class="bg-slate-900 text-slate-100">Elegan & Mewah</option>
+                            <option value="Colorful & Ceria" class="bg-slate-900 text-slate-100">Colorful & Ceria</option>
+                            <option value="Klasik & Tradisional" class="bg-slate-900 text-slate-100">Klasik & Tradisional</option>
+                            <option value="Tech & Futuristic" class="bg-slate-900 text-slate-100">Tech & Futuristic</option>
+                            <option value="Streetwear / Cyberpunk" class="bg-slate-900 text-slate-100">Streetwear / Cyberpunk</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Upload Referensi Desain</label>
+                        <div onclick="triggerFileUpload('ref-input')" class="border-2 border-dashed border-slate-800 hover:border-emerald-500/50 bg-slate-950/50 rounded-2xl p-6 text-center transition cursor-pointer flex flex-col items-center justify-center group">
+                            <div class="w-10 h-10 rounded-full bg-slate-900 group-hover:bg-emerald-500/10 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center mb-2 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-300 group-hover:text-emerald-400 transition" id="ref-status">Add Referensi</span>
+                            <span class="text-[10px] text-slate-500 mt-0.5">Klik untuk pilih file referensi</span>
+                        </div>
+                        <input type="file" id="ref-input" accept="image/*" class="hidden" onchange="updateFileStatus(this, 'ref-status', 'Referensi')">
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3 pb-4 mb-5 border-b border-slate-800">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h-0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">5. Prompt Pendukung & Perintah Khusus</h3>
+                        <p class="text-xs text-slate-400">Tambahkan detail mood, tata letak, atau efek pencahayaan</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Instruksi Tambahan (Opsional)</label>
+                    <textarea id="extra-instructions" rows="3" placeholder="E.g. Gunakan style ala poster film 90-an, atau tambahkan kesan mewah dengan aksen emas..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition custom-scrollbar"></textarea>
+                </div>
+            </section>
+
+            <!-- 6. Audio Recording -->
+            <section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3 pb-4 mb-3 border-b border-slate-800">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">6. Instruksi & Data Via Audio</h3>
+                        <p class="text-xs text-slate-400">Rekam atau unggah arahan suara langsung dari perangkat</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
+                    <div onclick="toggleRecord()" id="record-box" class="border border-slate-800 bg-slate-950/50 hover:bg-slate-900 transition rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center group">
+                        <div id="record-icon-bg" class="w-12 h-12 rounded-full bg-slate-900 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center mb-2 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        </div>
+                        <span id="record-status" class="text-xs font-semibold text-slate-300">Live Recording</span>
+                        <span class="text-[10px] text-slate-500 mt-1" id="record-desc">Klik untuk mulai merekam suara</span>
+                    </div>
+
+                    <div onclick="triggerFileUpload('audio-input')" class="border border-slate-800 bg-slate-950/50 hover:bg-slate-900 transition rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center group">
+                        <div class="w-12 h-12 rounded-full bg-slate-900 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center mb-2 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        </div>
+                        <span id="audio-status" class="text-xs font-semibold text-slate-300">File Audio</span>
+                        <span class="text-[10px] text-slate-500 mt-1">Unggah berkas audio (MP3/WAV)</span>
+                        <input type="file" id="audio-input" accept="audio/*" class="hidden" onchange="updateFileStatus(this, 'audio-status', 'Audio')">
+                    </div>
+                </div>
+            </section>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold py-4 px-6 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.005] active:scale-[0.99] flex items-center justify-center space-x-2 text-base">
+                    <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>Generate wonk alass studio prompt</span>
+                </button>
+            </div>
+        </form>
+
+        <div id="result-container" class="hidden mt-10 bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="flex flex-wrap items-center justify-between mb-4 border-b border-slate-800 pb-3 gap-2">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <h3 class="font-bold text-white text-base">Hasil Prompt AI Siap Pakai</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="enhancePromptWithAI()" id="btn-enhance" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center space-x-1.5 shadow-md shadow-indigo-600/20">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <span>✨ Polish dengan AI Pro</span>
+                    </button>
+                    <button onclick="copyPrompt()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center space-x-1.5 shadow-md shadow-emerald-500/10">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>Salin Prompt</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="prompt-output" class="bg-slate-950 text-emerald-300 font-mono text-xs sm:text-sm p-5 rounded-xl border border-slate-800 whitespace-pre-wrap leading-relaxed custom-scrollbar max-h-96 overflow-y-auto"></div>
+        </div>
+    </main>
+
+    <!-- Admin Key Generator Modal (Only Owner) -->
+    <div id="admin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                <h4 class="font-bold text-amber-400 text-base flex items-center gap-2">
+                    🔑 Owner Panel: Generate Kode Lisensi Lynk.id
+                </h4>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            
+            <p class="text-xs text-slate-300 mb-4">
+                Buat kode lisensi eksklusif untuk diserahkan kepada pembeli Lynk.id. Kode ini hanya bisa digunakan oleh 1 email pembeli.
+            </p>
+
+            <button onclick="createNewLicenseKey()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl transition text-sm mb-4">
+                + Buat Kode Lisensi Unik Baru
+            </button>
+
+            <div id="new-key-box" class="hidden bg-slate-950 p-4 rounded-xl border border-amber-500/30 text-center mb-4">
+                <span class="text-xs text-slate-400 block mb-1">Kode Lisensi Baru Berhasil Dibuat:</span>
+                <span id="generated-key-display" class="font-mono text-lg font-bold text-amber-300 select-all block">WONK-XXXXXX</span>
+                <button onclick="copyGeneratedKey()" class="mt-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg transition">Salin Kode</button>
+            </div>
+
+            <button onclick="closeAdminModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl text-xs font-bold transition">Tutup</button>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[80vh]">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+                <h4 class="font-bold text-white text-base flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Histori Prompt Tersimpan
+                </h4>
+                <button onclick="toggleHistoryModal()" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <div id="history-list" class="space-y-3 overflow-y-auto custom-scrollbar pr-1 flex-grow">
+                <p class="text-xs text-slate-500 text-center py-6">Belum ada prompt tersimpan dalam sesi ini.</p>
+            </div>
+            <div class="pt-4 border-t border-slate-800 mt-4 flex justify-between items-center">
+                <button onclick="clearHistory()" class="text-xs text-rose-400 hover:underline">Hapus Semua Histori</button>
+                <button onclick="toggleHistoryModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-900/60 border-t border-slate-800/80 py-6 mt-16 text-center text-xs text-slate-500">
+        <p>&copy; 2026 wonk alass studio prompt &bull; Owner: <span class="text-emerald-400 font-semibold">wonkalass2@gmail.com</span> (tangituru AI Engine)</p>
+    </footer>
+
+    <!-- Custom Modal Standard -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center transform transition-all">
+            <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h4 id="modal-title" class="font-bold text-white text-lg mb-2">Pemberitahuan</h4>
+            <p id="modal-message" class="text-xs text-slate-400 mb-6 leading-relaxed">Pesan informasi.</p>
+            <button onclick="closeModal()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-2.5 rounded-xl font-bold text-sm transition">Tutup</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by host or defaults
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'wonk-alass-studio';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "demo-key",
+            authDomain: "demo-app.firebaseapp.com",
+            projectId: "demo-app",
+            storageBucket: "demo-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:demo"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let isDbReady = false;
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                isDbReady = true;
+            } catch (err) {
+                console.error("Auth Exception:", err);
+            }
+        }
+        initAuth();
+
+        window.dbRef = { db, doc, getDoc, setDoc, updateDoc, appId, isDbReady: () => isDbReady };
+    </script>
+
+    <script>
+        let isRecording = false;
+        let credits = 999;
+        let promptHistory = [];
+        let currentGeneratedPrompt = "";
+        let currentUser = null;
+        let currentGeneratedKey = "";
+
+        const OWNER_EMAIL = "wonkalass2@gmail.com";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuthSession();
+        });
+
+        function checkAuthSession() {
+            const savedUser = sessionStorage.getItem('wonk_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('active-user-display').innerText = currentUser.email.split('@')[0].toUpperCase();
+                
+                // Show owner controls if logged in as owner
+                if (currentUser.email.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
+                    document.getElementById('admin-gen-btn').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const licenseKey = document.getElementById('login-license').value.trim().toUpperCase();
+
+            if (!email || !licenseKey) {
+                showModal('Gagal', 'Mohon isi email dan kode lisensi.');
+                return;
+            }
+
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Memverifikasi Lisensi...";
+
+            // Special Bypass for Owner
+            if (email === OWNER_EMAIL.toLowerCase() && (licenseKey === 'WONK-MASTER-2026' || licenseKey.startsWith('WONK-'))) {
+                currentUser = { email, licenseKey };
+                sessionStorage.setItem('wonk_user', JSON.stringify(currentUser));
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('active-user-display').innerText = "OWNER (WONK ALASS)";
+                document.getElementById('admin-gen-btn').classList.remove('hidden');
+                showModal('Akses Owner Aktif', 'Selamat datang kembali, Owner Wonk Alass!');
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Aktivasi & Masuk";
+                return;
+            }
+
+            // Verify single-use license in Firestore Database
+            try {
+                const { db, doc, getDoc, setDoc, updateDoc, appId } = window.dbRef;
+                const licRef = doc(db, 'artifacts', appId, 'public', 'data', 'licenses', licenseKey);
+                const licSnap = await getDoc(licRef);
+
+                if (!licSnap.exists()) {
+                    showModal('Lisensi Tidak Ditemukan', 'Kode lisensi yang Anda masukkan salah atau belum terdaftar.');
+                } else {
+                    const data = licSnap.data();
+                    
+                    if (data.isUsed && data.claimedBy !== email) {
+                        showModal('Lisensi Sudah Terpakai!', `Kode lisensi ini sudah diaktivasi oleh pembeli lain (${data.claimedBy}). 1 Kode lisensi hanya berlaku untuk 1 pembeli.`);
+                    } else {
+                        // Claim key for this single user
+                        await updateDoc(licRef, {
+                            isUsed: true,
+                            claimedBy: email,
+                            claimedAt: new Date().toISOString()
+                        });
+
+                        currentUser = { email, licenseKey };
+                        sessionStorage.setItem('wonk_user', JSON.stringify(currentUser));
+                        document.getElementById('auth-screen').classList.add('hidden');
+                        document.getElementById('active-user-display').innerText = email.split('@')[0].toUpperCase();
+                        showModal('Lisensi Berhasil Diaktivasi', `Selamat datang! Lisensi Anda telah berhasil dikunci untuk akun ${email}.`);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                showModal('Gagal Verifikasi', 'Terjadi kendala koneksi database. Silakan coba beberapa saat lagi.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Aktivasi & Masuk";
+            }
+        }
+
+        async function createNewLicenseKey() {
+            if (!currentUser || currentUser.email.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
+                showModal('Akses Ditolak', 'Hanya owner wonkalass2@gmail.com yang dapat membuat kode lisensi baru.');
+                return;
+            }
+
+            const randomCode = 'WONK-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            try {
+                const { db, doc, setDoc, appId } = window.dbRef;
+                const licRef = doc(db, 'artifacts', appId, 'public', 'data', 'licenses', randomCode);
+                
+                await setDoc(licRef, {
+                    code: randomCode,
+                    createdAt: new Date().toISOString(),
+                    isUsed: false,
+                    claimedBy: null
+                });
+
+                currentGeneratedKey = randomCode;
+                document.getElementById('generated-key-display').innerText = randomCode;
+                document.getElementById('new-key-box').classList.remove('hidden');
+            } catch (err) {
+                showModal('Gagal', 'Gagal membuat kode lisensi baru.');
+            }
+        }
+
+        function copyGeneratedKey() {
+            if (!currentGeneratedKey) return;
+            copyTextToClipboard(currentGeneratedKey);
+            showModal('Tersalin!', `Kode Lisensi ${currentGeneratedKey} berhasil disalin. Berikan kode ini ke pembeli di Lynk.id.`);
+        }
+
+        function openAdminModal() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            document.getElementById('admin-modal').classList.add('flex');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.remove('flex');
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('wonk_user');
+            currentUser = null;
+            document.getElementById('admin-gen-btn').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            showModal('Logout Berhasil', 'Anda telah keluar dari aplikasi.');
+        }
+
+        function triggerFileUpload(inputId) {
+            document.getElementById(inputId).click();
+        }
+
+        function updateFileStatus(input, statusId, label) {
+            const statusElem = document.getElementById(statusId);
+            if (input.files && input.files.length > 0) {
+                if (input.files.length === 1) {
+                    statusElem.innerText = `${label}: ${input.files[0].name}`;
+                } else {
+                    statusElem.innerText = `${input.files.length} File ${label} Terpilih`;
+                }
+                statusElem.classList.add('text-emerald-400');
+            }
+        }
+
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            document.getElementById('custom-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.remove('flex');
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function toggleRecord() {
+            isRecording = !isRecording;
+            const box = document.getElementById('record-box');
+            const status = document.getElementById('record-status');
+            const desc = document.getElementById('record-desc');
+            const iconBg = document.getElementById('record-icon-bg');
+
+            if (isRecording) {
+                box.classList.add('border-rose-500/50', 'bg-rose-950/20');
+                iconBg.classList.add('bg-rose-500/20', 'text-rose-400');
+                status.innerText = 'Merekam Audio...';
+                desc.innerText = 'Klik kembali untuk menghentikan rekaman';
+                status.classList.add('text-rose-400', 'font-bold');
+            } else {
+                box.classList.remove('border-rose-500/50', 'bg-rose-950/20');
+                iconBg.classList.remove('bg-rose-500/20', 'text-rose-400');
+                status.innerText = 'Audio Terrekam';
+                desc.innerText = 'Siap diproses oleh AI tangituru';
+                status.classList.remove('text-rose-400');
+                status.classList.add('text-emerald-400');
+            }
+        }
+
+        function applyPreset(type) {
+            if (type === 'fnb') {
+                document.getElementById('main-title').value = "PROMO KULINER SPESIAL BERSAMA";
+                document.getElementById('sub-title').value = "Beli 2 Gratis 1 Paket Serbu";
+                document.getElementById('description').value = "Berlaku untuk dine-in & takeaway dari jam 10 pagi s/d 8 malam.";
+                document.getElementById('slogan').value = "Rasa Autentik, Nikmat Tiada Dua";
+                document.getElementById('product-list').value = "Ayam Goreng Crispy, Es Teh Jumbo, Burger Lumer";
+                document.getElementById('dominant-color').value = "Kuning Coklat Gurih";
+                document.getElementById('theme').value = "Colorful & Ceria";
+            } else if (type === 'fashion') {
+                document.getElementById('main-title').value = "NEW SUMMER COLLECTION 2026";
+                document.getElementById('sub-title').value = "Discount Up To 70% Off";
+                document.getElementById('slogan').value = "Stay Stylish Everyday";
+                document.getElementById('product-list').value = "Kemeja Oversize, Outer Casual, Tote Bag Minimalis";
+                document.getElementById('dominant-color').value = "Monochrome & Pastel";
+                document.getElementById('theme').value = "Modern Minimalis";
+            } else if (type === 'gadget') {
+                document.getElementById('main-title').value = "FLASH SALE GADGET & TECH";
+                document.getElementById('sub-title').value = "Harga Anjlok Garansi Resmi 1 Tahun";
+                document.getElementById('slogan').value = "Solusi Canggih Masa Kini";
+                document.getElementById('product-list').value = "Smartphone Flagship, TWS Wireless, Smartwatch";
+                document.getElementById('dominant-color').value = "Biru Neon Cyberpunk";
+                document.getElementById('theme').value = "Tech & Futuristic";
+            } else if (type === 'event') {
+                document.getElementById('main-title').value = "SEMINAR NASIONAL DESAIN GRAPHIC";
+                document.getElementById('sub-title').value = "Membangun Karir AI Creative";
+                document.getElementById('slogan').value = "Kuasai AI Dalam Sekejap";
+                document.getElementById('product-list').value = "E-Certificate, Networking, Toolkit Prompt";
+                document.getElementById('dominant-color').value = "Emas & Hitam Elegan";
+                document.getElementById('theme').value = "Elegan & Mewah";
+            }
+            showModal('Preset Diterapkan!', 'Formulir telah terisi otomatis dengan preset pilihan.');
+        }
+
+        function resetForm() {
+            document.getElementById('banner-form').reset();
+            document.getElementById('result-container').classList.add('hidden');
+            showModal('Form Dikosongkan', 'Seluruh input formulir telah dibersihkan.');
+        }
+
+        function generatePrompt() {
+            if (credits <= 0) {
+                showModal('Kredit Habis', 'Kredit Anda telah habis.');
+                return;
+            }
+
+            credits -= 1;
+            document.getElementById('credit-count').innerText = credits;
+
+            const mainTitle = document.getElementById('main-title').value || '[Judul Utama Banner]';
+            const subTitle = document.getElementById('sub-title').value || '[Sub Judul / Penawaran]';
+            const description = document.getElementById('description').value || '[Deskripsi Tambahan]';
+            const slogan = document.getElementById('slogan').value || '[Slogan Merek]';
+            
+            const wa = document.getElementById('contact-wa').value;
+            const ig = document.getElementById('contact-ig').value;
+            const yt = document.getElementById('contact-yt').value;
+            const tiktok = document.getElementById('contact-tiktok').value;
+            const fb = document.getElementById('contact-fb').value;
+            const address = document.getElementById('contact-address').value;
+            const contactOther = document.getElementById('contact-other').value;
+
+            const products = document.getElementById('product-list').value || 'Produk unggulan presisi tinggi';
+            const elements = document.getElementById('supporting-elements').value || 'Elemen dekoratif profesional modern';
+            
+            const orientation = document.getElementById('orientation').value;
+            const size = document.getElementById('banner-size').value || 'Standar Tinggi (High Quality)';
+            const color = document.getElementById('dominant-color').value || 'Harmonis Sesuai Brand';
+            const theme = document.getElementById('theme').value || 'Modern Profesional Minimalis';
+            const extra = document.getElementById('extra-instructions').value || 'Tidak ada instruksi khusus';
+
+            let contacts = [];
+            if(wa) contacts.push(`WA: ${wa}`);
+            if(ig) contacts.push(`IG: ${ig}`);
+            if(yt) contacts.push(`YT: ${yt}`);
+            if(tiktok) contacts.push(`TikTok: ${tiktok}`);
+            if(fb) contacts.push(`FB: ${fb}`);
+            if(address) contacts.push(`Alamat: ${address}`);
+            if(contactOther) contacts.push(`Info: ${contactOther}`);
+
+            currentGeneratedPrompt = `PROMPT BANNER AI DESIGN - WONK ALASS STUDIO PROMPT (OWNER: wonkalass2@gmail.com):
+====================================================================
+- Studio Generator : wonk alass studio prompt v1.4 Pro
+- Owner Account    : wonkalass2@gmail.com (tangituru)
+- Orientasi & Ukuran: ${orientation} (${size})
+- Tema Visual      : ${theme}
+- Warna Dominan    : ${color}
+
+[HIRARKI TEKS & INFORMASI]
+- Judul Utama (Heading) : "${mainTitle}"
+- Sub Judul             : "${subTitle}"
+- Deskripsi Penawaran   : "${description}"
+- Slogan Merek          : "${slogan}"
+
+[ASET VISUAL & DEKORASI]
+- Produk Utama          : ${products}
+- Elemen Pendukung      : ${elements}
+- Informasi Kontak      : ${contacts.length > 0 ? contacts.join(' | ') : 'Sesuai dengan layout template'}
+
+[PETUNJUK KOMPOSISI & INSTRUKSI]
+- Arahan Tambahan       : ${extra}
+- Visual Quality        : Ultra-high commercial banner aesthetics, crisp typography hierarchy, studio lighting, professional color balance, balanced negative space, octan render details, clean layout.
+====================================================================`;
+
+            document.getElementById('prompt-output').innerText = currentGeneratedPrompt;
+            document.getElementById('result-container').classList.remove('hidden');
+
+            promptHistory.unshift({
+                title: mainTitle,
+                date: new Date().toLocaleTimeString(),
+                prompt: currentGeneratedPrompt
+            });
+            updateHistoryUI();
+
+            document.getElementById('result-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function enhancePromptWithAI() {
+            const btn = document.getElementById('btn-enhance');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span>⏳ Processing AI...</span>`;
+            btn.disabled = true;
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "You are a world-class AI Image Generation Prompt Engineer. Enhance the raw Indonesian banner requirements into a highly detailed, professional English text prompt suitable for image models.";
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: currentGeneratedPrompt }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                const data = await response.json();
+                const enhancedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (enhancedText) {
+                    currentGeneratedPrompt = `PROMPT ENHANCED BY WONKALASS2@GMAIL.COM (TANGITURU AI):\n\n${enhancedText}\n\n==================================================\nORIGINAL CONFIG:\n${currentGeneratedPrompt}`;
+                    document.getElementById('prompt-output').innerText = currentGeneratedPrompt;
+                    showModal('Prompt Dipoles AI!', 'Prompt telah ditingkatkan ke level instruksi fotografi profesional.');
+                }
+            } catch (err) {
+                showModal('Gagal', 'Terjadi kendala saat menghubungi AI Engine.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function toggleHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function updateHistoryUI() {
+            const list = document.getElementById('history-list');
+            if (promptHistory.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Belum ada prompt tersimpan.</p>`;
+                return;
+            }
+            list.innerHTML = promptHistory.map((item, idx) => `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+                    <div class="overflow-hidden">
+                        <span class="text-xs font-bold text-emerald-400 block truncate">${item.title}</span>
+                        <span class="text-[10px] text-slate-500">${item.date}</span>
+                    </div>
+                    <button onclick="loadHistoryItem(${idx})" class="bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 text-xs px-2.5 py-1 rounded-lg transition shrink-0">Muat</button>
+                </div>
+            `).join('');
+        }
+
+        function loadHistoryItem(idx) {
+            currentGeneratedPrompt = promptHistory[idx].prompt;
+            document.getElementById('prompt-output').innerText = currentGeneratedPrompt;
+            document.getElementById('result-container').classList.remove('hidden');
+            toggleHistoryModal();
+            document.getElementById('result-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearHistory() {
+            promptHistory = [];
+            updateHistoryUI();
+        }
+
+        function copyPrompt() {
+            const text = document.getElementById('prompt-output').innerText;
+            copyTextToClipboard(text);
+            showModal('Berhasil!', 'Prompt berhasil disalin ke clipboard.');
+        }
+
+        function copyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(() => {});
+            }
+        }
+    </script>
+</body>
+</html>
